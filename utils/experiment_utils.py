@@ -58,7 +58,7 @@ def build_modules(state_model_config=None, attention_model_config=None,
     return att_model, sampling_layer, walker_state_model, None
     
 
-def create_cora_model(n_node_features, walkers_per_node, max_walkers_per_node, output_activation, use_state=True, n_classes=None, 
+def create_cora_model(n_node_features, walkers_per_node, max_walkers_per_node, output_activation, use_state=True, n_classes=None, scale_lr=0.01,
     stepwise_readout=True,  identify_walkers_per_node=True, pooling_level='node', edge_input=False, input_dropout=0., input_l2=0.01, **module_config):
     modules = build_modules(**module_config)
     attention_module, sampling_module, state_module = modules
@@ -105,6 +105,7 @@ def create_cora_model(n_node_features, walkers_per_node, max_walkers_per_node, o
                         output_transform=output_transform,
                         stepwise_readout=stepwise_readout,
                         pooling_level=pooling_level,
+                        scale_lr=scale_lr,
                         use_state=True)
 
     return cora_model
@@ -312,6 +313,7 @@ def merge_args(config, args):
     config['model']['input_dropout'] = args.input_dropout
     config['model']['n_node_features'] = args.units
     config['model']['cell_type'] = 'dsgnn' + args.type
+    config['model']['scale_lr'] = args.scale_lr
     config['model']['state_model_config']['units'] = args.units
     config['model']['state_model_config']['activation'] = args.state_model_activation
     config['model']['state_model_config']['dropout'] = args.state_model_dropout

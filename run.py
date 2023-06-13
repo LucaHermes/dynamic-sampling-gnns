@@ -68,6 +68,7 @@ def create_cli_parser():
     parser.add_argument('--state-model', type=str, default='res')
     parser.add_argument('--n-steps', type=int, default=3)
     parser.add_argument('--train-parallel', action='store_true', default=False)
+    parser.add_argument('--scale-lr', type=float, default=0.01)
     parser.add_argument('--lr', type=float, default=0.001)
     return parser
 

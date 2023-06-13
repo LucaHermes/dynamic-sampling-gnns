@@ -8,7 +8,7 @@ class DSGNN(tf.keras.layers.Layer):
     
     def __init__(self, cell, walker_state_size, walkers_per_node=1, walkers_reduce_fn=None, use_state=False,
                  input_transform=None, input_edge_transform=None, embedding_layer=None, state_init_fn=None, 
-                 output_transform=None, stepwise_readout=True, pooling_level='node'):
+                 output_transform=None, stepwise_readout=True, pooling_level='node', scale_lr=0.01):
         super(DSGNN, self).__init__()
         self.cell = cell
         self.walker_state_size = walker_state_size
@@ -17,6 +17,7 @@ class DSGNN(tf.keras.layers.Layer):
         self.input_edge_transform = input_edge_transform
         self.embedding_layer = embedding_layer
         self.output_transform = output_transform
+        self.scale_lr = scale_lr
         
         if pooling_level == 'graph':
             self.readout = self.readout_graph_prediction
@@ -369,7 +370,7 @@ class DSGNN(tf.keras.layers.Layer):
 
                 if train_separately:
                     # perform training step of the edge sampling model
-                    self.optimizer.lr = self.optimizer.lr / SAMPLING_LR_FRACTION
+                    self.optimizer.lr = self.optimizer.lr * self.self.scale_lr #/ SAMPLING_LR_FRACTION
                     results_sampling = {}
                         
                     results_sampling = self.train_step(
@@ -385,7 +386,7 @@ class DSGNN(tf.keras.layers.Layer):
                     results_sampling.pop('edge_probs', None)
                     results_sampling.pop('sampling_entropy', None)
 
-                    self.optimizer.lr = self.optimizer.lr * SAMPLING_LR_FRACTION
+                    self.optimizer.lr = self.optimizer.lr / self.self.scale_lr #* SAMPLING_LR_FRACTION
                     # perform training step of the model parts not involved in sampling
                     result_non_sampling = self.train_step(
                         **model_inputs,

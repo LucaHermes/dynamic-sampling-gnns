@@ -1,7 +1,7 @@
 import os
 # use cpu
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' # tensorflow only prints errors
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' # only print errors
 import tensorflow as tf
 import logging
 tf.get_logger().setLevel(logging.ERROR)
@@ -192,6 +192,7 @@ def benchmark(create_model_fn, create_dataset_fn, dataset=None, epoch=None, name
                 split_result.keys(), 
                 json_serialized_values
             ))
+            # save quantitative results
             write_json(output_path / f'{i}_{folder_name}-metrics.json', split_result_dict)
     
     metrics_files = list(output_path.glob('*metrics.json'))
