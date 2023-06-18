@@ -4,3 +4,16 @@ In this work, we investigate a sparse version of message-passing that allows sel
 
 ![dynamic_sampling_main_figure](https://github.com/LucaHermes/dynamic-sampling-gnns/assets/30961397/a95b7fa5-77f8-4ef7-8e8e-7c1dc01519e8)
 <sub><br><b>Figure:</b> Overview of the dynamic sampling GNN framework. Left: An individual walker (dark blue) sampling two steps, updating its own state (solid blue arrows) and the node features of the origin node (solid black arrows). Right: Steps performed to sample a single step -- here from node 1 to node 2: Model $p_\theta$ computes edge logits (1) from which the trajectory is sampled to select a single neighbor (2). The walker traverses to the selected neighbor and updates its own state using $s_\phi$ (3). Finally, the walker updates its origin node (4). If multiple walkers (here red and green)---that originated in the same node 1---meet, their states contribute equally to the node update (4). Computations are denoted by solid black arrows, yellow boxes denote parameterized functions and dashed lines denote sampling trajectories.</sub>
+
+# Codebase Overview:
+
+ * `model.gumbel.GumbelSampling`: Differentiable Sampling from categorical distributions. Pass logits as a segmented tensor, together with segment ids. Specify whether you want one-hot samples, or a soft-selection via `soft_select`.
+ * `model.attention_models`: Package with different attention functions. Contains the GAT-style and dot product attention.
+ * `model.dsgnn_cells.DSGNNCell`: Implements the stepwise logic as described in the paper. The call method performs one step of each walker along the graph edges, integration of node features into the walker state and update of the origin node of the walker.
+ * `model.state_models.ResidualBlock`: A simple walker state model implemented as a residual block.
+ * `model.base_cell.DSGNNCellBase`: A base cell that provides utility functions for graph traversal and state integration. Can be inherited from to construct custom DSGNN cells.
+ * `model.base_model.DSGNN`: A base model which contains the training loop with the two-step training procedure presented in the paper. Also contains evaluation routines, readout functions and other utility functions such as model checkpointing, saving and loading.
+ * `benchmark_transductive.py`: A script to run the benchmarks that are shown in the paper. Here, the checkpoints from all epochs are necessary, because they are being compared across the individual 10-fold cross validation results.
+ * `run.py`: Use this to run the experiments. Provides a CLI to customize model, dataset and training parameters.
+ * `SimpleSamplingTask.ipynb`: A jupyter notebook that shows a simple usecase of the sampling model. The task thats implemented here is a simple navigation task. A graph is generated, a target node is selected and the sampling model is trained to guide the walkers to the target node.
+ * `configs.py`: Default configutrations of the model, training and dataset.
